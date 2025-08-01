@@ -1,13 +1,14 @@
-# Gerekli kütüphaneler içe aktarılıyor
-import subprocess  # Harici işlemler çalıştırmak için kullanılır
-import sys         # Python yolunu almak için kullanılır
+# Gerekli kütüphaneler
+import subprocess  # Harici komut veya programları çalıştırmak için kullanılır
+import sys         # Python yorumlayıcısının yolunu almak için kullanılır
+import os          # Ortam değişkenlerini okumak için
 
-def main():
-    # Streamlit frontend uygulamasını başlatmak için terminal komutu çalıştırılır
-    subprocess.run([sys.executable, "-m", "streamlit", "run", "frontend/app.py"])
-    # sys.executable: aktif Python yorumlayıcısının yolu (örneğin venv kullanılıyorsa doğru ortamı garantiler)
-    # "-m streamlit run frontend/app.py": Streamlit komutunu çalıştırır ve ilgili uygulamayı açar
+def main():  
+    app_path = os.path.join("frontend", "app.py")  # frontend klasöründeki app.py dosya yolunu oluştur
+    
+    # Streamlit uygulamasını başlatmak için subprocess ile komut çalıştırılır
+    subprocess.run([sys.executable, "-m", "streamlit", "run", app_path])
 
-# Eğer bu dosya çalıştırılıyorsa main() fonksiyonu çağrılır
+# Eğer bu dosya doğrudan çalıştırılıyorsa main() fonksiyonu çalıştırılır
 if __name__ == "__main__":
     main()
