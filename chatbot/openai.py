@@ -12,7 +12,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # OpenAI sohbet fonksiyonu
 def chat_with_openai(system_prompt: str, user_input: str) -> str:
 
-    # OpenAI çağrılır
+    # Bir nesne ile OpenAI çağrılır
     response = client.chat.completions.create(
         model="gpt-4o",                                    # Kullanılacak model
         messages=[                                         # Mesaj listesi

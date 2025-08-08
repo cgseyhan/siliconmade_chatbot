@@ -6,10 +6,11 @@ import os                                  # Ortam değişkenlerini okumak için
 def init_db():                             # Veritabanı ve tabloyu oluşturmak veya kontrol etmek için fonksiyon
     try:
         conn = mysql.connector.connect(                 # MySQL'e bağlantı oluşturulur
-            host=os.getenv("MYSQL_HOST", "localhost"),  # MYSQL_HOST ortam değişkeni okunur, yoksa localhost varsayılan olarak kullanılır
-            user=os.getenv("MYSQL_USER", "root"),       # MYSQL_USER ortam değişkeni okunur, yoksa root varsayılan olarak kullanılır
-            password=os.getenv("MYSQL_PASSWORD", "")    # MYSQL_PASSWORD ortam değişkeni okunur, yoksa boş parola varsayılan olarak kullanılır
+            host=os.getenv("MYSQL_HOST", "localhost"),
+            user=os.getenv("MYSQL_USER", "root"),
+            password=os.getenv("MYSQL_PASSWORD", "")
         )
+
         cursor = conn.cursor()             # SQL sorgularını çalıştırmak için cursor oluşturulur
 
         cursor.execute("CREATE DATABASE IF NOT EXISTS chatbot_db")  # chatbot_db veritabanı yoksa oluşturulur
@@ -27,7 +28,7 @@ def init_db():                             # Veritabanı ve tabloyu oluşturmak 
         """)
         conn.commit()                      # Veritabanındaki değişiklikler kaydedilir
         cursor.close()                     # Cursor kapatılır
-        conn.close()                       # Bağlantı kapatılır
+        conn.close()                       # Bağlantı kesilir
 
         print("DEBUG: Veritabanı ve tablo kontrol edildi/oluşturuldu.")  # Başarılı işlem mesajı yazdırılır
     except Exception as e:                 # Hata yakalanır
@@ -56,7 +57,7 @@ def log_interaction(user_input: str, response: str, model: str):  # Kullanıcı 
         conn.commit()                                           # Değişiklikler veritabanına kaydedilir
 
         cursor.close()                                          # Cursor kapatılır
-        conn.close()                                            # Bağlantı kapatılır
+        conn.close()                                            # Bağlantı kesilir
 
         print(f"DEBUG: MySQL log kaydı eklendi → {model}")  
     except Exception as e:                                      # Hata durumunda

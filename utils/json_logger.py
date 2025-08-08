@@ -2,12 +2,17 @@ import json
 import os
 from datetime import datetime
 
-# Proje kök dizinine chat_logs.json oluştur
+# Log klasörü
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-LOG_FILE = os.path.join(BASE_DIR, "chat_logs.json")
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)  # Klasör yoksa oluştur
 
 def log_interaction(user_input: str, response: str, model: str):
+    # Her sohbet kaydı için yeni dosya adı
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_file = os.path.join(LOG_DIR, f"{timestamp_str}.json")
 
+    # Kayıt verisi
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "model": model,
@@ -15,21 +20,8 @@ def log_interaction(user_input: str, response: str, model: str):
         "response": response
     }
 
-    # Eğer dosya yoksa oluştur
-    if not os.path.exists(LOG_FILE):
-        with open(LOG_FILE, "w", encoding="utf-8") as f:
-            json.dump([], f, ensure_ascii=False)
+    # JSON dosyasını oluştur
+    with open(log_file, "w", encoding="utf-8") as f:
+        json.dump(log_entry, f, indent=4, ensure_ascii=False)
 
-    # Logları oku, JSON hatası varsa boş liste olarak devam et
-    with open(LOG_FILE, "r+", encoding="utf-8") as f:
-        try:
-            logs = json.load(f)
-        except json.JSONDecodeError:
-            logs = []
-
-        logs.append(log_entry)
-        f.seek(0)
-        json.dump(logs, f, indent=4, ensure_ascii=False)
-        f.truncate()
-
-    print("DEBUG: Log kaydı başarıyla eklendi.")
+    print(f"DEBUG: Yeni log dosyası oluşturuldu → {log_file}")
