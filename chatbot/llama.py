@@ -24,12 +24,12 @@ class LlamaChatbot:
     def __init__(self, model_name: str | None = None):
         self.model_name = _resolve_llama_model(model_name)
 
-    def chat(self, system_prompt: str, user_input: str) -> str:
+    def chat(self, messages: list) -> str:
+        """
+        OpenRouter üzerinden mesaj listesini LLaMA modeline gönderir.
+        """
         resp = client.chat.completions.create(
             model=self.model_name,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_input},
-            ],
+            messages=messages,
         )
         return (resp.choices[0].message.content or "").strip()

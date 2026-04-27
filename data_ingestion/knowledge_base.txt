@@ -1,0 +1,30 @@
+SILICONMADE ACADEMY BİLGİ BANKASI
+
+Hakkımızda:
+Siliconmade Academy, Türkiye'nin önde gelen yazılım ve teknoloji eğitim merkezlerinden biridir. Amacımız, sektöre kalifiye yazılımcılar yetiştirmek ve öğrencileri iş hayatına hazırlamaktır.
+
+Eğitim Programları:
+1. Full Stack Java Geliştirici:
+   - Süre: 6 Ay
+   - İçerik: Java, Spring Boot, MySQL, React, Docker.
+   - Kimler İçin: Yazılıma sıfırdan başlamak isteyenler veya Java uzmanı olmak isteyenler.
+
+2. Veri Bilimi ve Yapay Zeka:
+   - Süre: 5 Ay
+   - İçerik: Python, Pandas, Scikit-learn, TensorFlow, Derin Öğrenme.
+   - Kimler İçin: Veri analizi ve yapay zeka alanında kariyer yapmak isteyenler.
+
+3. Siber Güvenlik Uzmanlığı:
+   - Süre: 4 Ay
+   - İçerik: Ağ güvenliği, Sızma testleri (Pentest), Kali Linux, SOC takibi.
+
+Staj ve İş İmkânları:
+Eğitimi başarıyla tamamlayan öğrencilere partner firmalarımızda staj imkânı sağlanmaktadır. Başarılı mezunlarımızın %90'ı ilk 3 ay içinde işe yerleşmektedir.
+
+Lokasyon:
+İstanbul ve online eğitim seçenekleri mevcuttur.
+
+İletişim:
+- Web: www.siliconmadeacademy.com
+- Telefon: +90 (212) 000 00 00
+- E-posta: info@siliconmadeacademy.com
