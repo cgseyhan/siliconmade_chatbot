@@ -83,5 +83,5 @@ Bu proje, modern yapay zeka tekniklerini (RAG, Sentiment Analysis, Agentic Flow)
 
 ---
 
-**Geliştirici:** [Cemgo]  
+**Geliştirici:** [cgseyhan]  
 **Lisans:** MIT
