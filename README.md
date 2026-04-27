@@ -1,134 +1,87 @@
-# Chatbot Satış Asistanı (GPT-4o & LLaMA)
+# 🚀 Siliconmade AI Sales Assistant (Next-Gen RAG & Analytics)
 
-Bu proje, **OpenAI GPT-4o** ve **yerel LLaMA modeli** ile çalışan, **Streamlit tabanlı** bir chatbot arayüzü sunar. Kullanıcı girişleri otomatik olarak **MySQL veritabanına** ve **Airtable bulut platformuna** kaydedilir.
+Siliconmade Academy için geliştirilmiş, potansiyel öğrencilere rehberlik eden, anlamsal arama (RAG) yeteneğine sahip, duygu ve niyet analizi yapabilen profesyonel bir **Yapay Zeka Satış Asistanı** ekosistemidir.
 
-```
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-Modern%20API-009688.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-UI%2FUX-FF4B4B.svg)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991.svg)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20Storage-orange.svg)
+
+---
+
+## 🌟 Öne Çıkan Özellikler
+
+### 🧠 Anlamsal Bellek (RAG - Retrieval Augmented Generation)
+Bot, sadece önceden tanımlanmış metinlere bakmaz. **ChromaDB** vektör veritabanını kullanarak Siliconmade bilgi bankasında anlamsal arama yapar ve en doğru bilgiyi saniyeler içinde bulur.
+
+### 📊 Akıllı Analitik & Dashboard
+*   **Duygu Analizi:** Kullanıcının mutlu mu, kızgın mı yoksa nötr mü olduğunu anlık olarak tespit eder.
+*   **Niyet Analizi:** Kullanıcının sadece bilgi mi almak istediğini yoksa satın almaya hazır bir "Lead" mi olduğunu anlar.
+*   **Yönetim Paneli:** Plotly tabanlı grafiklerle müşteri segmentasyonu ve trafik analizi sunar.
+
+### ⚡ Çok Kanallı Mimari (FastAPI)
+Sadece bir web arayüzü değil, aynı zamanda bir API servisidir. Bu sayede botu mobil uygulamalara, WordPress sitelerine veya kurumsal sistemlere kolayca entegre edebilirsiniz.
+
+### 🎨 Premium UI/UX
+*   **Glassmorphism Tasarım:** Modern, yarı saydam ve estetik kullanıcı arayüzü.
+*   **Multimodal Desteği:** Resim analizi yapabilir (Örn: Bir sertifikayı veya broşürü yorumlayabilir).
+*   **Sesli Sohbet:** OpenAI Whisper ve TTS (Text-to-Speech) entegrasyonu ile konuşarak iletişim kurma.
+
+---
+
+## 🏗️ Proje Yapısı
+
+```text
 📁 siliconmade_chatbot
-├── chatbot
-│ ├── chatbot_logic.py                    
-│ ├── llama.py 
-│ ├── main.py 
-│ ├── memory.py 
-│ ├── openai.py 
-│ ├── prompts.py 
-│
-├── config
-│ ├── config.yaml 
-│ ├── secrets.json 
-│
-├── data_ingestion 
-│
-├── database
-│
-├── frontend
-│ ├── app.py 
-│ ├── ui_components.py 
-│
-├── integrations
-│ ├── airtable_integration.py 
-│
-├── models 
-│
-├── utils
-│ ├── helpers.py 
-│ ├── json_logger.py
-│ ├── log_analyzer.py 
-│ ├── mysql_logger.py 
-│
-├── widget
-│ ├── chatbot_widget.css 
-│ ├── chatbot_widget.html 
-│ ├── chatbot_widget.js 
-│
-├── .gitignore
-├── LICENSE
-├── README.md
-├── requirements.txt
-├── run_app.py
-└── run.py
+├── 📁 api              # FastAPI Backend (Santral)
+├── 📁 chatbot          # Ana Mantık (OpenAI & LLaMA Entegrasyonları)
+├── 📁 chroma_db        # Vektör Veritabanı (Hafıza)
+├── 📁 data_ingestion   # Bilgi Bankası ve RAG Hazırlık Araçları
+├── 📁 frontend         # Streamlit Arayüzleri (App & Admin Dashboard)
+├── 📁 utils            # Yardımcı Araçlar (Loglama, Lead Çıkarma, Analiz)
+├── 📁 widget           # Web Siteleri İçin Gömülebilir Widget
+└── 📄 run_api.py       # API Sunucusunu Başlatıcı
 ```
----
-## Özellikler
-
-- GPT-4o (OpenAI) ile Türkçe yazılı ve sesli sohbet
-- LLaMA (yerel) ile offline yazılı ve sesli sohbet deneyimi
-- MySQL veritabanına sohbet kayıtları
-- Airtable'a bulut senkronizasyonu
-- JSON sohbet kayıtları
 
 ---
 
-## Kurulum
+## 🛠️ Kurulum ve Çalıştırma
 
-### 1. Depoyu klonlayın:
-
+### 1. Hazırlık
 ```bash
-git clone https://github.com/cgseyhan/siliconmade_chatbot
+git clone https://github.com/cgseyhan/siliconmade_chatbot.git
 cd siliconmade_chatbot
-```
-
-### 2. Sanal ortam oluşturun ve etkinleştirin:
-
-```bash
 python -m venv .venv
-```
-Windows: 
-```bash
-.venv\Scripts\activate
-```
-macOS/Linux: 
-```bash
-source .venv/bin/activate
-```
-
-### 3. Gereksinimleri Yükleyin:
-
-```bash
+source .venv/bin/activate # Windows için: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
-
-## .env Dosyası
-Proje dizinine `.env` dosyası oluşturun ve aşağıdaki içerikle doldurun:
-
-```bash
-OPENAI_API_KEY="sk-"
-
-MYSQL_HOST="localhost"
-MYSQL_USER="root"
-MYSQL_PASSWORD="password"
-MYSQL_DATABASE="chatbot_db"
-
-AIRTABLE_API_KEY="pat..."
-AIRTABLE_BASE_ID="app..."
-AIRTABLE_TABLE_NAME="chat_logs"
+### 2. Yapılandırma
+`.env` dosyanıza API anahtarlarınızı ekleyin:
+```env
+OPENAI_API_KEY=sk-...
+OPENROUTER_API_KEY=...
 ```
 
-## Uygulamayı Başlatma
-GPT-4o versiyonu:
-```bash
-streamlit run gpt.py
-```
-LLaMA versiyonu:
-```bash
-streamlit run llama.py
-```
----
+### 3. Çalıştırma
+Proje üç ana katmandan oluşur:
 
-## Gereken Kütüphaneler
-
-Hepsi `requirements.txt` dosyasında listelenmiştir.
+*   **API Sunucusu:** `python run_api.py` (Port 8000)
+*   **Kullanıcı Arayüzü:** `streamlit run run_app.py`
+*   **Yönetim Paneli:** `streamlit run run_admin.py`
 
 ---
 
-## Uyarılar
-
-- LLaMA için `.gguf` model dosyası `models/` klasöründe olmalıdır. [Hugging Face](https://huggingface.co/models?library=gguf&sort=trending&search=llama) üzerinden istediğiniz modeli indirip `models/` klasörüne kopyalamanız yeterli olacaktır.
-- `.gitignore` dosyasına `chatbot.db`, `*.mp3`, `models/`, `.env` gibi büyük veya hassas dosyaları ekleyin.
-- API anahtarlarınızı asla açık olarak paylaşmayın.
+## 🛡️ Güvenlik ve Guardrails
+Botumuz, rakip kurumlar hakkında konuşmamak, resmi fiyat listesi dışına çıkmamak ve tıbbi/etik dışı konularda yorum yapmamak üzere özel olarak eğitilmiştir.
 
 ---
 
-## Geliştirici Notu
-Bu proje, [Siliconmade Academy](https://www.siliconmadeacademy.com/lead/?c=03-00092-20250503&gad_source=1&gad_campaignid=20731985909&gbraid=0AAAAABfTe3vGSw8oDAKaH2-h5W3AtBkvu&gclid=CjwKCAjw3_PCBhA2EiwAkH_j4uQdM2WmWLP6onaujAH4SkzhN9i9Frencb2NfS2M99VT7x_fHYsxbhoC3H0QAvD_BwE) staj süreci kapsamında bireysel bir proje olarak geliştirilmiştir.
+## 📝 Geliştirici Notu
+Bu proje, modern yapay zeka tekniklerini (RAG, Sentiment Analysis, Agentic Flow) kurumsal bir satış senaryosuna entegre etmek amacıyla Siliconmade Academy staj süreci kapsamında geliştirilmiştir.
+
+---
+
+**Geliştirici:** [Cemgo]  
+**Lisans:** MIT
