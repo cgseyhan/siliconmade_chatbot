@@ -1,26 +1,28 @@
-# Gerekli kütüphaneler
-from pyairtable import Table       # Airtable API'sine bağlanmak için pyairtable kütüphanesi
-import os                          # Ortam değişkenlerine erişmek için
+from pyairtable import Table
+import os
 
 def log_interaction(user_input: str, response: str, model: str):
+    """
+    Logs the conversation interaction directly into Airtable if configured.
+    """
     try:
-        api_key = os.getenv("AIRTABLE_API_KEY")                     # Airtable API anahtarı
-        base_id = os.getenv("AIRTABLE_BASE_ID")                     # Airtable Base ID
-        table_name = os.getenv("AIRTABLE_TABLE_NAME", "chat_logs")  # Tablo adı
+        api_key = os.getenv("AIRTABLE_API_KEY")
+        base_id = os.getenv("AIRTABLE_BASE_ID")
+        table_name = os.getenv("AIRTABLE_TABLE_NAME", "chat_logs")
 
-        # Airtable tablosuna bağlanmak için bir Table nesnesi oluşturulur
+        # Skip logging if Airtable credentials are not fully configured
+        if not api_key or not base_id:
+            return
+
         table = Table(api_key, base_id, table_name)
 
-        # Kaydedilecek verileri içeren nesne
         record = {
-            "model": model,           # Modelin adı
-            "user_input": user_input, # Kullanıcının girdisi
-            "bot_response": response  # Chatbot yanıtı
+            "model": model,
+            "user_input": user_input,
+            "bot_response": response
         }
 
-        # Veriyi Airtable'a ekler
         table.create(record)
-        print(f"DEBUG: Airtable kaydı eklendi → {model}")  # Başarılı ekleme durumunda debug çıktısı
+        print(f"DEBUG: Airtable record successfully added -> {model}")
     except Exception as e:
-        # Herhangi bir hata durumunda hatayı ekrana yazdırır
-        print(f"ERROR: Airtable kaydedilemedi → {e}")
+        print(f"ERROR: Airtable logging failed -> {e}")

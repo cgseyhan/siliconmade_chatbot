@@ -8,7 +8,7 @@ from chatbot.prompts import get_system_prompt
 from chatbot.memory import ChatMemory
 from utils.mysql_logger import set_setting, get_setting
 
-# ---- Sayfa Ayarları ----
+# ---- Page Configuration ----
 st.set_page_config(
     page_title="Brand AI Sales Assistant",
     page_icon="⚡",
@@ -117,12 +117,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---- Sidebar Content ----
 # ---- Session State ----
 if "session_id" not in st.session_state:
     st.session_state.session_id = "user_1"
 
-# Veritabanından en güncel ayarları çekerek başlat
+# Initialize by pulling the latest settings from the database
 db_prompt = get_setting("custom_system_prompt", get_system_prompt("sales"))
 if "custom_system_prompt" not in st.session_state or st.session_state.custom_system_prompt != db_prompt:
     st.session_state.custom_system_prompt = db_prompt
@@ -143,25 +142,25 @@ if "messages" not in st.session_state:
 
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #00d2ff; margin-bottom: 20px;'>🤖 BrandAI</h2>", unsafe_allow_html=True)
-    st.markdown("### ⚙️ Asistan Ayarları")
+    st.markdown("### ⚙️ Assistant Settings")
     
-    # Model seçimi veritabanı ile eşzamanlı
+    # Model selection synchronized with the database
     model_index = 0 if st.session_state.selected_model == "ChatGPT-4o" else 1
-    selected_model = st.selectbox("Model Seçimi", ["ChatGPT-4o", "LLaMA"], index=model_index)
+    selected_model = st.selectbox("Model Selection", ["ChatGPT-4o", "LLaMA"], index=model_index)
     if selected_model != st.session_state.selected_model:
         st.session_state.selected_model = selected_model
         set_setting("selected_model", selected_model)
-        st.toast(f"Model {selected_model} olarak güncellendi!", icon="🤖")
+        st.toast(f"Model updated to {selected_model}!", icon="🤖")
     
     st.write("---")
-    st.markdown("### 🔧 Marka Özelleştirme")
+    st.markdown("### 🔧 Brand Customization")
     
     # 1. Custom System Prompt
     custom_prompt = st.text_area(
-        "Sistem Promptu (Asistan Rolü)",
+        "System Prompt (Assistant Role)",
         value=st.session_state.custom_system_prompt,
         height=150,
-        help="Asistanın karakterini, dilini ve görevlerini buradan özelleştirebilirsiniz."
+        help="Customize the assistant's character, language, and tasks here."
     )
     if custom_prompt != st.session_state.custom_system_prompt:
         st.session_state.custom_system_prompt = custom_prompt
@@ -169,13 +168,13 @@ with st.sidebar:
         if st.session_state.messages and st.session_state.messages[0]["role"] == "system":
             st.session_state.messages[0]["content"] = custom_prompt
             memory.save_message("system", custom_prompt)
-            st.toast("Sistem promptu güncellendi!", icon="📝")
+            st.toast("System prompt updated!", icon="📝")
 
     # 2. RAG File Upload
     rag_file = st.file_uploader(
-        "Bilgi Bankası (RAG) Dosyası",
+        "Knowledge Base (RAG) File",
         type=["txt", "md"],
-        help="Asistanın cevap verirken kullanacağı bilgi bankası metin dosyasını (.txt veya .md) yükleyin."
+        help="Upload a text file (.txt or .md) containing custom knowledge for the assistant."
     )
     if rag_file is not None:
         try:
@@ -185,29 +184,29 @@ with st.sidebar:
             with open(KNOWLEDGE_FILE, "w", encoding="utf-8") as f:
                 f.write(file_content)
                 
-            with st.spinner("Bilgi Bankası indeksleniyor..."):
+            with st.spinner("Indexing Knowledge Base..."):
                 reindex_from_text(file_content)
-            st.success("Bilgi Bankası başarıyla indekslendi!", icon="✅")
+            st.success("Knowledge Base indexed successfully!", icon="✅")
         except Exception as e:
-            st.error(f"İndeksleme hatası: {e}")
+            st.error(f"Indexing error: {e}")
             
     st.write("---")
     st.markdown("""
-    **Hızlı Linkler:**
-    - [🌐 Web Siteniz](https://example.com)
-    - [📦 Ürün ve Hizmetler](https://example.com/urunler)
-    - [📞 İletişim](https://example.com/iletisim)
+    **Quick Links:**
+    - [🌐 Your Website](https://example.com)
+    - [📦 Products & Services](https://example.com/products)
+    - [📞 Contact Us](https://example.com/contact)
     """)
     
     st.write("---")
-    if st.button("Sohbeti Sıfırla"):
+    if st.button("Reset Chat"):
         st.session_state.messages = [{"role": "system", "content": st.session_state.custom_system_prompt}]
         st.session_state.user_text = ""
         st.rerun()
 
-# ---- Ana Arayüz ----
+# ---- Main Interface ----
 st.title("Enterprise AI Sales Assistant")
-st.caption("Müşterileriniz ve ziyaretçileriniz için anında, akıllı ve sonuç odaklı destek.")
+st.caption("Instant, intelligent, and results-driven customer engagement.")
 
 # Chat history container
 chat_placeholder = st.container()
@@ -220,7 +219,7 @@ with chat_placeholder:
             st.markdown(f"""
             <div class="message-row user-row">
                 <div class="bubble user-bubble">{msg['content']}</div>
-                <div class="avatar user-avatar">SİZ</div>
+                <div class="avatar user-avatar">YOU</div>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -231,12 +230,12 @@ with chat_placeholder:
             </div>
             """, unsafe_allow_html=True)
 
-# Girdi alanı (Fixed-ish bottom)
+# Input field
 st.markdown("<br><br>", unsafe_allow_html=True)
 col_input, col_mic, col_btn = st.columns([6, 1, 1.2])
 
 with col_input:
-    user_input = st.text_input("", placeholder="Mesajınızı buraya yazın...", key="user_text", label_visibility="collapsed")
+    user_input = st.text_input("", placeholder="Type your message here...", key="user_text", label_visibility="collapsed")
 
 with col_mic:
     audio_bytes = audio_recorder(
@@ -247,10 +246,10 @@ with col_mic:
     )
 
 with col_btn:
-    send_btn = st.button("GÖNDER", use_container_width=True)
+    send_btn = st.button("SEND", use_container_width=True)
 
-with st.expander("📁 Medya Yükle (Resim Analizi)"):
-    uploaded_file = st.file_uploader("Bir görsel seçin", type=["jpg", "jpeg", "png"])
+with st.expander("📁 Upload Media (Image Analysis)"):
+    uploaded_file = st.file_uploader("Select an image", type=["jpg", "jpeg", "png"])
 
 # ---- Logic ----
 if send_btn or audio_bytes:
@@ -262,17 +261,17 @@ if send_btn or audio_bytes:
 
     if not input_text and audio_bytes:
         try:
-            with st.spinner("Sesiniz işleniyor..."):
+            with st.spinner("Processing voice..."):
                 input_text = transcribe_audio_openai(audio_bytes, "recorded.wav")
         except Exception as e:
-            st.error(f"STT Hatası: {e}")
+            st.error(f"STT Error: {e}")
 
     if input_text:
         st.session_state.messages.append({"role": "user", "content": input_text})
         memory.save_message("user", input_text)
         
         try:
-            with st.spinner("AI Yanıt veriyor..."):
+            with st.spinner("AI is responding..."):
                 reply = run_chatbot(st.session_state.selected_model, st.session_state.messages, image_b64=image_b64)
             
             if reply:
@@ -282,12 +281,13 @@ if send_btn or audio_bytes:
                 # Auto-play TTS
                 try:
                     tts_path = synthesize_tts_openai(reply, voice="alloy")
-                    with open(tts_path, "rb") as f:
-                        audio_data = f.read()
-                    st.audio(audio_data, format="audio/mp3", autoplay=True)
-                    if os.path.exists(tts_path): os.remove(tts_path)
+                    if tts_path:
+                        with open(tts_path, "rb") as f:
+                            audio_data = f.read()
+                        st.audio(audio_data, format="audio/mp3", autoplay=True)
+                        if os.path.exists(tts_path): os.remove(tts_path)
                 except: pass
                 
                 st.rerun()
         except Exception as e:
-            st.error(f"Sistem Hatası: {e}")
+            st.error(f"System Error: {e}")

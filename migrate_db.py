@@ -11,7 +11,7 @@ def migrate():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Mevcut kolonları kontrol et
+    # Check existing columns
     cursor.execute("PRAGMA table_info(chat_logs)")
     columns = [col[1] for col in cursor.fetchall()]
     

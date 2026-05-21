@@ -5,14 +5,14 @@ from typing import List, Optional
 import os
 import sys
 
-# Proje kök dizinini Python yoluna ekle (chatbot modülünü bulabilmesi için)
+# Add project root directory to Python path (so chatbot module can be found)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from chatbot.main import run_chatbot
 
 app = FastAPI(title="Brand Chatbot API", version="1.0.0")
 
-# CORS Ayarları (Her yerden erişime izin veriyoruz)
+# CORS Settings (allowing access from everywhere)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# İstek Modelleri
+# Request Models
 class Message(BaseModel):
     role: str
     content: str
@@ -38,10 +38,10 @@ def home():
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     try:
-        # Mesajları sözlük listesine çevir
+        # Convert messages to a list of dicts
         formatted_messages = [{"role": m.role, "content": m.content} for m in request.messages]
         
-        # Chatbotu çalıştır
+        # Run the chatbot
         response = run_chatbot(
             model_name=request.model,
             messages=formatted_messages,

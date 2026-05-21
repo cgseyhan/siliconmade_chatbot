@@ -40,38 +40,38 @@ def get_db_connection():
 
 # ---- Sidebar (Brand Customization & RAG Settings) ----
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center; color: #00d2ff; margin-bottom: 20px;'>🤖 BrandAI Yönetim</h2>", unsafe_allow_html=True)
-    st.markdown("### ⚙️ Asistan Ayarları")
+    st.markdown("<h2 style='text-align: center; color: #00d2ff; margin-bottom: 20px;'>🤖 BrandAI Admin</h2>", unsafe_allow_html=True)
+    st.markdown("### ⚙️ Assistant Settings")
     
-    # Model seçimi
+    # Model selection
     db_model = get_setting("selected_model", "ChatGPT-4o")
     model_index = 0 if db_model == "ChatGPT-4o" else 1
-    selected_model = st.selectbox("Model Seçimi", ["ChatGPT-4o", "LLaMA"], index=model_index)
+    selected_model = st.selectbox("Model Selection", ["ChatGPT-4o", "LLaMA"], index=model_index)
     if selected_model != db_model:
         set_setting("selected_model", selected_model)
-        st.toast(f"Model {selected_model} olarak güncellendi!", icon="🤖")
+        st.toast(f"Model updated to {selected_model}!", icon="🤖")
 
     st.write("---")
-    st.markdown("### 🔧 Marka Özelleştirme")
+    st.markdown("### 🔧 Brand Customization")
 
     # 1. Custom System Prompt
     db_prompt = get_setting("custom_system_prompt", get_system_prompt("sales"))
     custom_prompt = st.text_area(
-        "Sistem Promptu (Asistan Rolü)",
+        "System Prompt (Assistant Role)",
         value=db_prompt,
         height=180,
-        help="Asistanın karakterini, dilini ve görevlerini buradan özelleştirebilirsiniz."
+        help="Customize the assistant's character, language, and tasks here."
     )
     if custom_prompt != db_prompt:
         set_setting("custom_system_prompt", custom_prompt)
-        st.toast("Sistem promptu güncellendi!", icon="📝")
+        st.toast("System prompt updated!", icon="📝")
 
     # 2. RAG File Upload
-    st.markdown("#### 📁 Bilgi Bankası (RAG)")
+    st.markdown("#### 📁 Knowledge Base (RAG)")
     rag_file = st.file_uploader(
-        "Yeni Bilgi Bankası Yükle",
+        "Upload New Knowledge Base",
         type=["txt", "md"],
-        help="Asistanın cevap verirken kullanacağı bilgi bankası metin dosyasını (.txt veya .md) yükleyin."
+        help="Upload a text file (.txt or .md) containing custom knowledge for the assistant."
     )
     if rag_file is not None:
         try:
@@ -81,14 +81,14 @@ with st.sidebar:
             with open(KNOWLEDGE_FILE, "w", encoding="utf-8") as f:
                 f.write(file_content)
                 
-            with st.spinner("Bilgi Bankası indeksleniyor..."):
+            with st.spinner("Indexing Knowledge Base..."):
                 reindex_from_text(file_content)
-            st.success("Bilgi Bankası indekslendi!", icon="✅")
+            st.success("Knowledge Base indexed successfully!", icon="✅")
         except Exception as e:
-            st.error(f"İndeksleme hatası: {e}")
+            st.error(f"Indexing error: {e}")
 
 st.title("📊 Brand AI Chatbot Intelligence Dashboard")
-st.markdown("Veri analitiği ve aday müşteri takibi için merkezi yönetim paneli.")
+st.markdown("Centralized management panel for data analytics and lead tracking.")
 
 try:
     conn = get_db_connection()
@@ -98,62 +98,86 @@ try:
     total_leads = pd.read_sql("SELECT COUNT(*) FROM leads", conn).iloc[0,0]
     positive_ratio = 0
     try:
-        pos_chats = pd.read_sql("SELECT COUNT(*) FROM chat_logs WHERE sentiment='Pozitif'", conn).iloc[0,0]
+        # Support both 'Positive' (new English) and 'Pozitif' (old Turkish logs if any)
+        pos_chats = pd.read_sql("SELECT COUNT(*) FROM chat_logs WHERE sentiment IN ('Positive', 'Pozitif')", conn).iloc[0,0]
         if total_chats > 0:
             positive_ratio = (pos_chats / total_chats) * 100
     except: pass
 
     m1, m2, m3 = st.columns(3)
-    with m1: st.metric("Toplam Etkileşim", total_chats)
-    with m2: st.metric("Toplanan Lead Sayısı", total_leads)
-    with m3: st.metric("Pozitif Memnuniyet", f"%{positive_ratio:.1f}")
+    with m1: st.metric("Total Interactions", total_chats)
+    with m2: st.metric("Collected Leads", total_leads)
+    with m3: st.metric("Positive Satisfaction", f"{positive_ratio:.1f}%")
 
     st.write("---")
 
-    # --- 1. Aday Müşteriler (Leads) ---
-    st.subheader("🎯 Aday Müşteri Havuzu")
+    # --- 1. Leads Pool ---
+    st.subheader("🎯 Lead Pool")
     leads_df = pd.read_sql("SELECT * FROM leads ORDER BY timestamp DESC", conn)
     if not leads_df.empty:
-        # Sütunları daha şık ve marka-bağımsız hale getir
+        # Rename columns to be elegant and localized
         rename_dict = {
             "id": "ID",
-            "timestamp": "Tarih",
-            "name": "Müşteri Adı",
-            "email": "E-posta",
-            "phone": "Telefon",
-            "product_interest": "İlgi Duyulan Ürün/Hizmet",
-            "course_interest": "İlgi Duyulan Ürün/Hizmet",
-            "notes": "Notlar"
+            "timestamp": "Date",
+            "name": "Customer Name",
+            "email": "Email",
+            "phone": "Phone",
+            "product_interest": "Product/Service of Interest",
+            "notes": "Notes"
         }
         display_df = leads_df.rename(columns=rename_dict)
         st.dataframe(display_df, use_container_width=True, hide_index=True)
         
         # Download Leads CSV
         csv = display_df.to_csv(index=False).encode('utf-8-sig')
-        st.download_button("Aday Müşteri Listesini CSV İndir", csv, "aday_musteriler.csv", "text/csv")
+        st.download_button("Download Lead List as CSV", csv, "leads.csv", "text/csv")
     else:
-        st.info("Henüz aday müşteri kaydı bulunmuyor.")
+        st.info("No lead records found yet.")
 
     st.write("---")
 
-    # --- 2. Analitik Grafikler ---
+    # --- 2. Analytics Charts ---
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("📈 Duygu Durum Dağılımı")
+        st.subheader("📈 Sentiment Distribution")
         sent_df = pd.read_sql("SELECT sentiment, COUNT(*) as count FROM chat_logs GROUP BY sentiment", conn)
         if not sent_df.empty:
+            # Map sentiments (handling both English and potential old Turkish logs)
+            sent_df['sentiment'] = sent_df['sentiment'].replace({
+                'Pozitif': 'Positive',
+                'Nötr': 'Neutral',
+                'Negatif': 'Negative'
+            })
+            # Re-aggregate in case replacement caused duplicates
+            sent_df = sent_df.groupby('sentiment').sum().reset_index()
+            
             fig = px.pie(sent_df, values='count', names='sentiment', 
                          color='sentiment',
-                         color_discrete_map={'Pozitif':'#00d2ff','Nötr':'#3a7bd5','Negatif':'#e74c3c'},
+                         color_discrete_map={
+                             'Positive': '#00d2ff',
+                             'Neutral': '#3a7bd5',
+                             'Negative': '#e74c3c'
+                         },
                          hole=0.4)
             fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="white")
             st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        st.subheader("🎯 Kullanıcı Niyet Analizi")
+        st.subheader("🎯 User Intent Analysis")
         intent_df = pd.read_sql("SELECT intent, COUNT(*) as count FROM chat_logs GROUP BY intent", conn)
         if not intent_df.empty:
+            # Map intents (handling potential Turkish logs)
+            intent_df['intent'] = intent_df['intent'].replace({
+                'Bilgi': 'Information',
+                'Satın Alma': 'Purchase',
+                'Destek': 'Support',
+                'Şikayet': 'Complaint',
+                'Diğer': 'Other'
+            })
+            # Re-aggregate
+            intent_df = intent_df.groupby('intent').sum().reset_index()
+            
             fig2 = px.bar(intent_df, x='intent', y='count', color='intent',
                           color_discrete_sequence=px.colors.sequential.Blues_r)
             fig2.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="white")
@@ -161,8 +185,8 @@ try:
 
     st.write("---")
 
-    # --- 3. Trafik Analizi ---
-    st.subheader("📅 Mesaj Trafiği")
+    # --- 3. Traffic Analysis ---
+    st.subheader("📅 Message Traffic")
     traffic_df = pd.read_sql("SELECT DATE(timestamp) as date, COUNT(*) as count FROM chat_logs GROUP BY date", conn)
     if not traffic_df.empty:
         fig3 = px.line(traffic_df, x='date', y='count', markers=True, line_shape='spline')
@@ -172,12 +196,23 @@ try:
 
     st.write("---")
 
-    # --- 4. Tüm Loglar ---
-    st.subheader("💬 Detaylı Sohbet Logları")
+    # --- 4. Detailed Logs ---
+    st.subheader("💬 Detailed Chat Logs")
     logs_df = pd.read_sql("SELECT timestamp, model, user_input, response, sentiment, intent FROM chat_logs ORDER BY timestamp DESC LIMIT 100", conn)
-    st.dataframe(logs_df, use_container_width=True, hide_index=True)
+    
+    # Map column headers to be user-friendly in English
+    rename_logs = {
+        "timestamp": "Timestamp",
+        "model": "Model",
+        "user_input": "User Message",
+        "response": "AI Response",
+        "sentiment": "Sentiment",
+        "intent": "Intent"
+    }
+    display_logs_df = logs_df.rename(columns=rename_logs)
+    st.dataframe(display_logs_df, use_container_width=True, hide_index=True)
 
     conn.close()
 
 except Exception as e:
-    st.error(f"Hata: {e}")
+    st.error(f"Error: {e}")

@@ -6,35 +6,35 @@ from utils.lead_extractor import extract_lead_info
 from utils.sentiment_analyzer import analyze_sentiment_and_intent
 import threading
 
-# Veritabanını başlat
+# Initialize database
 init_db()
 
 from chatbot.prompts import get_system_prompt
 from data_ingestion.rag_helper import get_knowledge_context
 
-# Varsayılan sistem mesajını merkezden alıyoruz
+# Load system prompt
 SYSTEM_PROMPT = get_system_prompt("sales")
 
-def background_logs(user_input: str, response: str, model_name: str, sentiment: str = "Nötr", intent: str = "Diğer", messages: list = None):
+def background_logs(user_input: str, response: str, model_name: str, sentiment: str = "Neutral", intent: str = "Other", messages: list = None):
     """
-    Loglama ve Lead çıkarma işlemlerini arka planda (thread) çalıştırır.
+    Runs logging and Lead extraction operations in the background (thread).
     """
-    # 1. Normal loglama
+    # 1. Normal logging
     try:
         log_mysql(user_input, response, model_name, sentiment, intent)
     except Exception as e:
-        print(f"DEBUG: SQLite Log hatası -> {e}")
+        print(f"DEBUG: SQLite log error -> {e}")
 
     try:
         log_airtable(user_input, response, model_name)
     except Exception as e:
-        print(f"DEBUG: Airtable Log hatası -> {e}")
+        print(f"DEBUG: Airtable log error -> {e}")
 
-    # 2. Lead çıkarma (Eğer mesaj geçmişi varsa)
+    # 2. Lead extraction (if message history is available)
     if messages:
         try:
             lead_data = extract_lead_info(messages)
-            # Eğer en azından bir bilgi (isim, mail veya telefon) bulunduysa kaydet
+            # If at least one contact detail (name, email, or phone) is extracted, save it
             if lead_data.get("name") or lead_data.get("email") or lead_data.get("phone"):
                 save_lead(
                     name=lead_data.get("name"),
@@ -48,17 +48,17 @@ def background_logs(user_input: str, response: str, model_name: str, sentiment: 
 
 def run_chatbot(model_name: str, messages: list, image_b64: str = None) -> str:
     """
-    Seçilen modele göre tüm mesaj geçmişini işler ve yanıtı döndürür.
+    Processes the conversation history based on the selected model and returns the response.
     """
-    # 1. Son kullanıcı mesajını al ve context bul
+    # 1. Retrieve user message and fetch RAG context
     user_input = messages[-1]["content"] if messages else ""
     context = get_knowledge_context(user_input)
 
-    # 2. Mesaj listesinin başına (veya sistem mesajına) context ekle
+    # 2. Append context to the system message or start of history
     enriched_messages = messages.copy()
     
     if context:
-        rag_prompt = f"\n\nBİLGİ BANKASI VERİSİ:\n{context}\n\nLütfen yukarıdaki bilgilere dayanarak cevap ver."
+        rag_prompt = f"\n\nKNOWLEDGE BASE CONTEXT:\n{context}\n\nPlease answer based strictly on the information above."
         if enriched_messages and enriched_messages[0]["role"] == "system":
             enriched_messages[0] = {
                 "role": "system", 
@@ -67,19 +67,19 @@ def run_chatbot(model_name: str, messages: list, image_b64: str = None) -> str:
         else:
             enriched_messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT + rag_prompt})
 
-    # 3. Modeli çalıştır
-    sentiment, intent = "Nötr", "Diğer"
+    # 3. Process with model
+    sentiment, intent = "Neutral", "Other"
     if model_name == "ChatGPT-4o":
         ai_res = chat_with_openai(enriched_messages, image_b64=image_b64)
-        response = ai_res.get("answer", "Hata oluştu.")
-        sentiment = ai_res.get("sentiment", "Nötr")
-        intent = ai_res.get("intent", "Diğer")
+        response = ai_res.get("answer", "An error occurred.")
+        sentiment = ai_res.get("sentiment", "Neutral")
+        intent = ai_res.get("intent", "Other")
     elif model_name == "LLaMA":
         response = LlamaChatbot().chat(enriched_messages)
     else:
-        raise ValueError(f"Bilinmeyen model: {model_name}")
+        raise ValueError(f"Unknown model: {model_name}")
 
-    # 4. Loglama işlemlerini arka plana at
+    # 4. Dispatch logging tasks to background thread
     log_thread = threading.Thread(
         target=background_logs, 
         args=(user_input, response, model_name, sentiment, intent, messages)

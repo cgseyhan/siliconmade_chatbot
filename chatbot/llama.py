@@ -24,7 +24,7 @@ def _resolve_llama_model(name: str | None) -> str:
     # explicit -> env -> fallback
     model = (name or os.getenv("OPENROUTER_LLAMA_MODEL") or "meta-llama/llama-3.3-70b-instruct:free").strip()
     if not model:
-        raise ValueError("LLaMA için model adı bulunamadı (OPENROUTER_LLAMA_MODEL boş).")
+        raise ValueError("Model name for LLaMA could not be resolved (OPENROUTER_LLAMA_MODEL is empty).")
     return model
 
 class LlamaChatbot:
@@ -33,8 +33,12 @@ class LlamaChatbot:
 
     def chat(self, messages: list) -> str:
         """
-        OpenRouter üzerinden mesaj listesini LLaMA modeline gönderir.
+        Sends the list of messages to the LLaMA model via OpenRouter.
         """
+        key = os.getenv("OPENROUTER_API_KEY")
+        if not key or key == "dummy":
+            return "WARNING: OPENROUTER_API_KEY is not configured."
+
         resp = get_openrouter_client().chat.completions.create(
             model=self.model_name,
             messages=messages,

@@ -25,17 +25,17 @@
         cbInput.value = '';
 
         try {
-            // API'ye gönder (Gelecekteki FastAPI endpoint'imiz)
-            const response = await fetch('http://localhost:8000/api/chat', {
+            // Send to API (our FastAPI chat endpoint)
+            const response = await fetch('http://localhost:8000/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, model: 'ChatGPT-4o' })
+                body: JSON.stringify({ messages: [{ role: 'user', content: text }], model: 'ChatGPT-4o' })
             });
 
             const data = await response.json();
-            appendMessage('bot', data.reply);
+            appendMessage('bot', data.response);
         } catch (error) {
-            appendMessage('bot', 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.');
+            appendMessage('bot', 'Sorry, an error occurred. Please try again.');
             console.error('Chat Error:', error);
         }
     }

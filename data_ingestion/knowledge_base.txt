@@ -1,27 +1,27 @@
-MARKA BİLGİ BANKASI ŞABLONU (ÖRNEK TEKNOLOJİ A.Ş.)
+BRAND KNOWLEDGE BASE TEMPLATE (EXAMPLE TECHNOLOGY INC.)
 
-Hakkımızda:
-Örnek Teknoloji A.Ş., Türkiye'nin önde gelen yenilikçi teknoloji ve kurumsal yazılım çözümleri üreticilerinden biridir. Amacımız, müşterilerimize modern dijital dönüşüm süreçlerinde rehberlik etmek ve en yüksek kalitede mühendislik hizmetleri sunmaktır.
+About Us:
+Example Technology Inc. is one of the leading innovative technology and enterprise software solutions providers in the region. Our goal is to guide our clients through modern digital transformation processes and provide the highest quality engineering services.
 
-Ürün ve Hizmetlerimiz:
-1. Akıllı ERP ve CRM Çözümleri:
-   - Açıklama: Şirketinizin tüm kaynaklarını tek bir platformdan yönetmenizi sağlayan bulut tabanlı yazılım çözümü.
-   - Kimler İçin: Operasyonel verimliliğini artırmak isteyen KOBİ'ler ve kurumsal şirketler.
+Our Products and Services:
+1. Intelligent ERP and CRM Solutions:
+   - Description: A cloud-based software solution that allows you to manage all of your company's resources from a single platform.
+   - Who It's For: SMEs and enterprise corporations looking to boost operational efficiency.
 
-2. Yapay Zeka Entegrasyon Hizmetleri:
-   - Açıklama: İş süreçlerinizi optimize eden, anlık veri analizi ve tahmine dayalı modelleme sunan özel AI çözümleri.
-   - Kimler İçin: Teknolojik altyapısını yapay zeka ile güçlendirmek isteyen işletmeler.
+2. Artificial Intelligence Integration Services:
+   - Description: Tailored AI solutions that optimize business processes, providing real-time data analysis and predictive modeling.
+   - Who It's For: Businesses looking to empower their technological infrastructure with artificial intelligence.
 
-3. Bulut Altyapı ve Güvenlik Hizmetleri:
-   - Açıklama: Verilerinizi güvende tutan, yüksek erişilebilirlikli siber güvenlik ve veri saklama altyapıları.
+3. Cloud Infrastructure and Security Services:
+   - Description: Highly available cybersecurity and data storage infrastructures that keep your data safe.
 
-Çözüm Ortaklığı ve Destek:
-Ürünlerimizi tercih eden tüm iş ortaklarımıza 7/24 teknik destek ve entegrasyon süreci boyunca kesintisiz danışmanlık hizmeti sunmaktır.
+Partnership and Support:
+We offer 24/7 technical support and continuous consulting services throughout the integration process to all partners who choose our products.
 
-Lokasyon:
-Merkez ofisimiz İstanbul'da olup, tüm dünyadaki iş ortaklarımıza online ve yerinde hizmet sunmaktayız.
+Location:
+Our headquarters are in Istanbul, and we provide online and on-site services to our business partners worldwide.
 
-İletişim:
+Contact:
 - Web: www.example.com
-- Telefon: +90 (000) 000 00 00
-- E-posta: info@example.com
+- Phone: +90 (000) 000 00 00
+- Email: info@example.com

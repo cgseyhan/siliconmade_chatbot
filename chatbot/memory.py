@@ -10,11 +10,11 @@ class ChatMemory:
         self.file_path = os.path.join(self.memory_dir, f"{session_id}.json")
 
     def save_message(self, role: str, content: str):
-        """Mesajı hafızaya ekler ve dosyaya kaydeder."""
+        """Adds a message to the memory buffer and writes it to file."""
         history = self.get_history()
         history.append({"role": role, "content": content})
         
-        # Sınırı aşan eski mesajları temizle (System prompt hariç)
+        # Prune old messages exceeding limit (except system prompt)
         if len(history) > self.limit:
             system_msg = [m for m in history if m["role"] == "system"]
             other_msgs = [m for m in history if m["role"] != "system"]
@@ -24,7 +24,7 @@ class ChatMemory:
             json.dump(history, f, ensure_ascii=False, indent=4)
 
     def get_history(self) -> list:
-        """Kayıtlı mesaj geçmişini döner."""
+        """Returns the saved message history list."""
         if not os.path.exists(self.file_path):
             return []
         
@@ -35,6 +35,6 @@ class ChatMemory:
             return []
 
     def clear_memory(self):
-        """Hafızayı siler."""
+        """Deletes/clears the conversation memory file."""
         if os.path.exists(self.file_path):
             os.remove(self.file_path)

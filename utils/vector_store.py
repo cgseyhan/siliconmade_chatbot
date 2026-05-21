@@ -4,16 +4,16 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 
-# .env dosyasını yükle
+# Load .env file
 current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(os.path.dirname(current_dir), ".env")
 load_dotenv(env_path)
 
-# Ayarlar
+# Settings
 DB_DIR = os.path.join(os.path.dirname(current_dir), "chroma_db")
 KNOWLEDGE_FILE = os.path.join(os.path.dirname(current_dir), "data_ingestion", "knowledge_base.txt")
 
-# Embedding modelini lazy başlatmak için fonksiyon
+# Lazy load embeddings
 _embeddings = None
 
 def get_embeddings():
@@ -23,75 +23,116 @@ def get_embeddings():
         _embeddings = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=key)
     return _embeddings
 
+def is_api_key_valid():
+    """
+    Checks if the OpenAI API Key is set and is not the placeholder dummy key.
+    """
+    key = os.getenv("OPENAI_API_KEY")
+    return bool(key and key.strip() and key != "dummy")
+
 def initialize_vector_db():
     """
-    Metin dosyasını okur, parçalar ve vektör veritabanını oluşturur/günceller.
+    Reads the knowledge base file, chunks it, and builds/updates the vector database.
     """
-    if not os.path.exists(KNOWLEDGE_FILE):
-        print(f"HATA: Bilgi bankası dosyası bulunamadı: {KNOWLEDGE_FILE}")
+    if not is_api_key_valid():
+        print("WARNING: OPENAI_API_KEY is not set or invalid. Skipping vector database initialization.")
         return None
 
-    with open(KNOWLEDGE_FILE, "r", encoding="utf-8") as f:
-        text = f.read()
+    if not os.path.exists(KNOWLEDGE_FILE):
+        print(f"ERROR: Knowledge base file not found: {KNOWLEDGE_FILE}")
+        return None
 
-    # Metni anlamlı parçalara böl (1000 karakterlik, 200 karakter çakışmalı)
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    docs = text_splitter.create_documents([text])
+    try:
+        with open(KNOWLEDGE_FILE, "r", encoding="utf-8") as f:
+            text = f.read()
 
-    # ChromaDB oluştur
-    vector_db = Chroma.from_documents(
-        documents=docs,
-        embedding=get_embeddings(),
-        persist_directory=DB_DIR
-    )
-    print(f"DEBUG: Vektör veritabanı başarıyla oluşturuldu/güncellendi. ({len(docs)} parça)")
-    return vector_db
+        # Split text into meaningful chunks (1000 characters chunk size with 200 overlap)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        docs = text_splitter.create_documents([text])
+
+        # Create ChromaDB
+        vector_db = Chroma.from_documents(
+            documents=docs,
+            embedding=get_embeddings(),
+            persist_directory=DB_DIR
+        )
+        print(f"DEBUG: Vector database successfully created/updated. ({len(docs)} chunks)")
+        return vector_db
+    except Exception as e:
+        print(f"ERROR: Failed to initialize vector database: {e}")
+        return None
 
 def reindex_from_text(text: str):
     """
-    Belirli bir metni parçalar ve vektör veritabanını sıfırlayıp yeniden oluşturur.
+    Splits the provided metin chunk, resets, and rebuilds the vector database.
     """
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    docs = text_splitter.create_documents([text])
+    if not is_api_key_valid():
+        print("WARNING: OPENAI_API_KEY is not set or invalid. Skipping reindexing.")
+        return None
 
-    import shutil
-    if os.path.exists(DB_DIR):
-        try:
-            shutil.rmtree(DB_DIR)
-        except Exception as e:
-            print(f"DEBUG: Eski DB silinemedi: {e}")
+    try:
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        docs = text_splitter.create_documents([text])
 
-    vector_db = Chroma.from_documents(
-        documents=docs,
-        embedding=get_embeddings(),
-        persist_directory=DB_DIR
-    )
-    print(f"DEBUG: Vektör veritabanı dinamik metin ile yeniden oluşturuldu. ({len(docs)} parça)")
-    return vector_db
+        import shutil
+        if os.path.exists(DB_DIR):
+            try:
+                shutil.rmtree(DB_DIR)
+            except Exception as e:
+                print(f"DEBUG: Could not delete old database: {e}")
+
+        vector_db = Chroma.from_documents(
+            documents=docs,
+            embedding=get_embeddings(),
+            persist_directory=DB_DIR
+        )
+        print(f"DEBUG: Vector database reindexed with dynamic text. ({len(docs)} chunks)")
+        return vector_db
+    except Exception as e:
+        print(f"ERROR: Failed to reindex vector database: {e}")
+        return None
 
 def get_vector_db():
     """
-    Mevcut vektör veritabanına bağlanır.
+    Connects to the existing vector database.
     """
+    if not is_api_key_valid():
+        return None
+
     if not os.path.exists(DB_DIR):
         return initialize_vector_db()
     
-    return Chroma(persist_directory=DB_DIR, embedding_function=get_embeddings())
+    try:
+        return Chroma(persist_directory=DB_DIR, embedding_function=get_embeddings())
+    except Exception as e:
+        print(f"ERROR: Failed to load vector database: {e}")
+        return None
 
 def query_vector_db(query: str, k: int = 3):
     """
-    Verilen soruya en yakın bilgileri (context) getirir.
+    Retrieves the closest context to the given query.
     """
+    if not is_api_key_valid():
+        print("WARNING: OPENAI_API_KEY is not set or invalid. Skipping vector search.")
+        return ""
+
     db = get_vector_db()
     if not db:
         return ""
     
-    results = db.similarity_search(query, k=k)
-    context = "\n\n".join([doc.page_content for doc in results])
-    return context
+    try:
+        results = db.similarity_search(query, k=k)
+        context = "\n\n".join([doc.page_content for doc in results])
+        return context
+    except Exception as e:
+        print(f"WARNING: Vector search failed: {e}")
+        return ""
 
 if __name__ == "__main__":
-    # Test için çalıştır
-    initialize_vector_db()
-    print("Test araması (Java):")
-    print(query_vector_db("Java kursu içeriği nedir?"))
+    # Test execution
+    if is_api_key_valid():
+        initialize_vector_db()
+        print("Test search (Java):")
+        print(query_vector_db("What is the content of the Java course?"))
+    else:
+        print("Skipping tests as OPENAI_API_KEY is not configured.")

@@ -1,18 +1,20 @@
-# Gerekli kütüphaneler
-import sqlite3                              # SQLite veritabanı için (kurulum gerektirmez)
-from datetime import datetime              # Zaman damgası eklemek için
-import os                                  # Dosya yollarını yönetmek için
+import sqlite3
+from datetime import datetime
+import os
 
-# Veritabanı dosyasının mutlak yolunu belirle (Hangi klasörden çalışırsa çalışsın aynı dosyayı kullanır)
+# Determine absolute path to database file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "chatbot.db")
 
-def init_db():                             # Veritabanı ve tabloları oluşturmak için fonksiyon
+def init_db():
+    """
+    Initializes the SQLite database and creates the necessary tables.
+    """
     try:
-        conn = sqlite3.connect(DB_PATH)    # Dosyaya bağlan (yoksa oluşturur)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        # Sohbet kayıtlarını tutacak tablo
+        # Chat interaction logging table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS chat_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +27,7 @@ def init_db():                             # Veritabanı ve tabloları oluşturm
             )
         """)
 
-        # Aday müşteri (Lead) tablosu
+        # Lead information table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS leads (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +40,7 @@ def init_db():                             # Veritabanı ve tabloları oluşturm
             )
         """)
 
-        # Ayarlar (Settings) tablosu
+        # Settings table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS settings (
                 key TEXT PRIMARY KEY,
@@ -47,11 +49,14 @@ def init_db():                             # Veritabanı ve tabloları oluşturm
         """)
         conn.commit()
         conn.close()
-        print(f"DEBUG: SQLite Veritabanı kontrol edildi ({DB_PATH}).")
+        print(f"DEBUG: SQLite database verified at {DB_PATH}.")
     except Exception as e:
-        print(f"ERROR: Veritabanı oluşturulamadı → {e}")
+        print(f"ERROR: Could not create database -> {e}")
 
 def get_setting(key: str, default: str = "") -> str:
+    """
+    Retrieves a setting value from the settings table.
+    """
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -62,24 +67,33 @@ def get_setting(key: str, default: str = "") -> str:
             return row[0]
         return default
     except Exception as e:
-        print(f"ERROR: get_setting hatası → {e}")
+        print(f"ERROR: get_setting error -> {e}")
         return default
 
 def set_setting(key: str, value: str):
+    """
+    Updates or inserts a setting value into the settings table.
+    """
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
         conn.commit()
         conn.close()
-        print(f"DEBUG: Ayar güncellendi → {key}")
+        print(f"DEBUG: Setting updated -> {key}")
     except Exception as e:
-        print(f"ERROR: set_setting hatası → {e}")
+        print(f"ERROR: set_setting error -> {e}")
 
-def get_connection():                      # SQLite bağlantısı oluşturmak için fonksiyon
+def get_connection():
+    """
+    Creates and returns a connection to the SQLite database.
+    """
     return sqlite3.connect(DB_PATH)
 
 def log_interaction(user_input: str, response: str, model: str, sentiment: str = "Unknown", intent: str = "Unknown"):
+    """
+    Logs chat interaction to the SQLite database.
+    """
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -93,12 +107,14 @@ def log_interaction(user_input: str, response: str, model: str, sentiment: str =
         conn.commit()
         conn.close()
 
-        print(f"DEBUG: [OK] SQLite'a log kaydedildi. (Sentiment: {sentiment})")  
+        print(f"DEBUG: [OK] Interaction logged to SQLite. (Sentiment: {sentiment})")  
     except Exception as e:
-        print(f"ERROR: [FAIL] SQLite log hatası → {e}")
+        print(f"ERROR: [FAIL] SQLite logging failed -> {e}")
 
 def save_lead(name=None, email=None, phone=None, product=None, notes=None):
-    """Aday müşteri bilgilerini SQLite veritabanına kaydeder."""
+    """
+    Saves lead details to the SQLite database.
+    """
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -110,6 +126,6 @@ def save_lead(name=None, email=None, phone=None, product=None, notes=None):
         cursor.execute(query, values)
         conn.commit()
         conn.close()
-        print(f"DEBUG: Yeni LEAD kaydedildi → {name or email}")
+        print(f"DEBUG: New LEAD saved -> {name or email}")
     except Exception as e:
-        print(f"ERROR: Lead kaydedilemedi → {e}")
+        print(f"ERROR: Failed to save lead -> {e}")
