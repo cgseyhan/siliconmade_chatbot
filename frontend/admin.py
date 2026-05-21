@@ -4,14 +4,15 @@ import pandas as pd
 import os
 import plotly.express as px
 from dotenv import load_dotenv
-from utils.mysql_logger import init_db
+from utils.mysql_logger import init_db, set_setting, get_setting
+from chatbot.prompts import get_system_prompt
 
 load_dotenv()
 init_db()
 
 # ---- Page Config ----
 st.set_page_config(
-    page_title="Siliconmade Admin Dashboard",
+    page_title="Brand AI Admin Dashboard",
     page_icon="📊",
     layout="wide"
 )
@@ -37,7 +38,56 @@ st.markdown("""
 def get_db_connection():
     return sqlite3.connect("chatbot.db")
 
-st.title("📊 Siliconmade Chatbot Intelligence Dashboard")
+# ---- Sidebar (Brand Customization & RAG Settings) ----
+with st.sidebar:
+    st.markdown("<h2 style='text-align: center; color: #00d2ff; margin-bottom: 20px;'>🤖 BrandAI Yönetim</h2>", unsafe_allow_html=True)
+    st.markdown("### ⚙️ Asistan Ayarları")
+    
+    # Model seçimi
+    db_model = get_setting("selected_model", "ChatGPT-4o")
+    model_index = 0 if db_model == "ChatGPT-4o" else 1
+    selected_model = st.selectbox("Model Seçimi", ["ChatGPT-4o", "LLaMA"], index=model_index)
+    if selected_model != db_model:
+        set_setting("selected_model", selected_model)
+        st.toast(f"Model {selected_model} olarak güncellendi!", icon="🤖")
+
+    st.write("---")
+    st.markdown("### 🔧 Marka Özelleştirme")
+
+    # 1. Custom System Prompt
+    db_prompt = get_setting("custom_system_prompt", get_system_prompt("sales"))
+    custom_prompt = st.text_area(
+        "Sistem Promptu (Asistan Rolü)",
+        value=db_prompt,
+        height=180,
+        help="Asistanın karakterini, dilini ve görevlerini buradan özelleştirebilirsiniz."
+    )
+    if custom_prompt != db_prompt:
+        set_setting("custom_system_prompt", custom_prompt)
+        st.toast("Sistem promptu güncellendi!", icon="📝")
+
+    # 2. RAG File Upload
+    st.markdown("#### 📁 Bilgi Bankası (RAG)")
+    rag_file = st.file_uploader(
+        "Yeni Bilgi Bankası Yükle",
+        type=["txt", "md"],
+        help="Asistanın cevap verirken kullanacağı bilgi bankası metin dosyasını (.txt veya .md) yükleyin."
+    )
+    if rag_file is not None:
+        try:
+            file_content = rag_file.read().decode("utf-8")
+            from utils.vector_store import reindex_from_text, KNOWLEDGE_FILE
+            
+            with open(KNOWLEDGE_FILE, "w", encoding="utf-8") as f:
+                f.write(file_content)
+                
+            with st.spinner("Bilgi Bankası indeksleniyor..."):
+                reindex_from_text(file_content)
+            st.success("Bilgi Bankası indekslendi!", icon="✅")
+        except Exception as e:
+            st.error(f"İndeksleme hatası: {e}")
+
+st.title("📊 Brand AI Chatbot Intelligence Dashboard")
 st.markdown("Veri analitiği ve aday müşteri takibi için merkezi yönetim paneli.")
 
 try:
@@ -64,11 +114,23 @@ try:
     st.subheader("🎯 Aday Müşteri Havuzu")
     leads_df = pd.read_sql("SELECT * FROM leads ORDER BY timestamp DESC", conn)
     if not leads_df.empty:
-        st.dataframe(leads_df, use_container_width=True, hide_index=True)
+        # Sütunları daha şık ve marka-bağımsız hale getir
+        rename_dict = {
+            "id": "ID",
+            "timestamp": "Tarih",
+            "name": "Müşteri Adı",
+            "email": "E-posta",
+            "phone": "Telefon",
+            "product_interest": "İlgi Duyulan Ürün/Hizmet",
+            "course_interest": "İlgi Duyulan Ürün/Hizmet",
+            "notes": "Notlar"
+        }
+        display_df = leads_df.rename(columns=rename_dict)
+        st.dataframe(display_df, use_container_width=True, hide_index=True)
         
         # Download Leads CSV
-        csv = leads_df.to_csv(index=False).encode('utf-8-sig')
-        st.download_button("Leads CSV İndir", csv, "leads.csv", "text/csv")
+        csv = display_df.to_csv(index=False).encode('utf-8-sig')
+        st.download_button("Aday Müşteri Listesini CSV İndir", csv, "aday_musteriler.csv", "text/csv")
     else:
         st.info("Henüz aday müşteri kaydı bulunmuyor.")
 

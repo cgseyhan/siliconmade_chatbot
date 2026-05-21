@@ -18,10 +18,10 @@ def extract_lead_info(messages: list) -> dict:
     - name (İsim Soyisim)
     - email (E-posta)
     - phone (Telefon)
-    - course (İlgilenilen kurs)
+    - product (İlgilenilen ürün/hizmet/konu)
 
     Eğer bilgi yoksa null bırak. Yanıtı SADECE saf JSON formatında ver.
-    Örnek: {"name": "Ahmet Yılmaz", "email": "ahmet@mail.com", "phone": "0555...", "course": "Java"}
+    Örnek: {"name": "Ahmet Yılmaz", "email": "ahmet@mail.com", "phone": "0555...", "product": "ERP Çözümü"}
     """
 
     try:

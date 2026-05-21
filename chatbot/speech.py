@@ -5,7 +5,14 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = None
+
+def get_speech_client():
+    global client
+    if client is None:
+        key = os.getenv("OPENAI_API_KEY") or "dummy"
+        client = OpenAI(api_key=key)
+    return client
 
 def transcribe_audio_openai(file_bytes: bytes, filename: str) -> str:
     """
@@ -20,7 +27,7 @@ def transcribe_audio_openai(file_bytes: bytes, filename: str) -> str:
             tmp_path = tmp.name
 
         with open(tmp_path, "rb") as f:
-            transcript = client.audio.transcriptions.create(
+            transcript = get_speech_client().audio.transcriptions.create(
                 model="whisper-1",
                 file=f,
             )
@@ -32,7 +39,7 @@ def transcribe_audio_openai(file_bytes: bytes, filename: str) -> str:
 
 def synthesize_tts_openai(text: str, voice: str = "alloy") -> str:
     out_path = os.path.join(tempfile.gettempdir(), f"tts_{uuid.uuid4().hex}.mp3")
-    audio = client.audio.speech.create(
+    audio = get_speech_client().audio.speech.create(
         model="tts-1",     # alternatif: "gpt-4o-mini-tts" hesabında açıksa
         voice=voice,       # alloy, verse, coral, etc.
         input=text,

@@ -8,11 +8,14 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(os.path.dirname(current_dir), ".env")
 load_dotenv(env_path)
 
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    print(f"WARNING: Sentiment Analyzer için OPENAI_API_KEY bulunamadı! Yol: {env_path}")
+client = None
 
-client = OpenAI(api_key=api_key)
+def get_sentiment_client():
+    global client
+    if client is None:
+        key = os.getenv("OPENAI_API_KEY") or "dummy"
+        client = OpenAI(api_key=key)
+    return client
 
 def analyze_sentiment_and_intent(user_input: str):
     """
@@ -26,7 +29,7 @@ def analyze_sentiment_and_intent(user_input: str):
         Mesaj: "{user_input}"
         """
 
-        response = client.chat.completions.create(
+        response = get_sentiment_client().chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "system", "content": "Sen bir veri analisti asistanısın. Sadece istenen JSON formatında cevap verirsin."},
                       {"role": "user", "content": prompt}],

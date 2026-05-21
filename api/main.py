@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from chatbot.main import run_chatbot
 
-app = FastAPI(title="Siliconmade Chatbot API", version="1.0.0")
+app = FastAPI(title="Brand Chatbot API", version="1.0.0")
 
 # CORS Ayarları (Her yerden erişime izin veriyoruz)
 app.add_middleware(
@@ -33,7 +33,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return {"status": "online", "message": "Siliconmade Chatbot API is running."}
+    return {"status": "online", "message": "Brand Chatbot API is running."}
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):

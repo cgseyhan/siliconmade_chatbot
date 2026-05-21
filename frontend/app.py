@@ -6,10 +6,11 @@ from chatbot.main import run_chatbot
 from chatbot.speech import transcribe_audio_openai, synthesize_tts_openai
 from chatbot.prompts import get_system_prompt
 from chatbot.memory import ChatMemory
+from utils.mysql_logger import set_setting, get_setting
 
 # ---- Sayfa Ayarları ----
 st.set_page_config(
-    page_title="Siliconmade AI Assistant",
+    page_title="Brand AI Sales Assistant",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -117,42 +118,96 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---- Sidebar Content ----
-with st.sidebar:
-    st.image("https://siliconmade.com/wp-content/uploads/2023/11/logo.png", width=200)
-    st.markdown("### 🤖 Asistan Ayarları")
-    MODEL_TYPE = st.selectbox("Model Seçimi", ["ChatGPT-4o", "LLaMA"], index=0)
-    
-    st.write("---")
-    st.markdown("""
-    **Hızlı Linkler:**
-    - [🌐 Web Sitemiz](https://siliconmade.com)
-    - [📚 Kurslarımız](https://siliconmade.com/kurslar)
-    - [📞 İletişim](https://siliconmade.com/iletisim)
-    """)
-    
-    st.write("---")
-    if st.button("Sohbeti Sıfırla"):
-        st.session_state.messages = [{"role": "system", "content": get_system_prompt("sales")}]
-        st.session_state.user_text = ""
-        st.rerun()
-
 # ---- Session State ----
 if "session_id" not in st.session_state:
     st.session_state.session_id = "user_1"
+
+# Veritabanından en güncel ayarları çekerek başlat
+db_prompt = get_setting("custom_system_prompt", get_system_prompt("sales"))
+if "custom_system_prompt" not in st.session_state or st.session_state.custom_system_prompt != db_prompt:
+    st.session_state.custom_system_prompt = db_prompt
+
+db_model = get_setting("selected_model", "ChatGPT-4o")
+if "selected_model" not in st.session_state or st.session_state.selected_model != db_model:
+    st.session_state.selected_model = db_model
 
 memory = ChatMemory(st.session_state.session_id)
 
 if "messages" not in st.session_state:
     saved_messages = memory.get_history()
     if not saved_messages:
-        st.session_state.messages = [{"role": "system", "content": get_system_prompt("sales")}]
-        memory.save_message("system", get_system_prompt("sales"))
+        st.session_state.messages = [{"role": "system", "content": st.session_state.custom_system_prompt}]
+        memory.save_message("system", st.session_state.custom_system_prompt)
     else:
         st.session_state.messages = saved_messages
 
+with st.sidebar:
+    st.markdown("<h2 style='text-align: center; color: #00d2ff; margin-bottom: 20px;'>🤖 BrandAI</h2>", unsafe_allow_html=True)
+    st.markdown("### ⚙️ Asistan Ayarları")
+    
+    # Model seçimi veritabanı ile eşzamanlı
+    model_index = 0 if st.session_state.selected_model == "ChatGPT-4o" else 1
+    selected_model = st.selectbox("Model Seçimi", ["ChatGPT-4o", "LLaMA"], index=model_index)
+    if selected_model != st.session_state.selected_model:
+        st.session_state.selected_model = selected_model
+        set_setting("selected_model", selected_model)
+        st.toast(f"Model {selected_model} olarak güncellendi!", icon="🤖")
+    
+    st.write("---")
+    st.markdown("### 🔧 Marka Özelleştirme")
+    
+    # 1. Custom System Prompt
+    custom_prompt = st.text_area(
+        "Sistem Promptu (Asistan Rolü)",
+        value=st.session_state.custom_system_prompt,
+        height=150,
+        help="Asistanın karakterini, dilini ve görevlerini buradan özelleştirebilirsiniz."
+    )
+    if custom_prompt != st.session_state.custom_system_prompt:
+        st.session_state.custom_system_prompt = custom_prompt
+        set_setting("custom_system_prompt", custom_prompt)
+        if st.session_state.messages and st.session_state.messages[0]["role"] == "system":
+            st.session_state.messages[0]["content"] = custom_prompt
+            memory.save_message("system", custom_prompt)
+            st.toast("Sistem promptu güncellendi!", icon="📝")
+
+    # 2. RAG File Upload
+    rag_file = st.file_uploader(
+        "Bilgi Bankası (RAG) Dosyası",
+        type=["txt", "md"],
+        help="Asistanın cevap verirken kullanacağı bilgi bankası metin dosyasını (.txt veya .md) yükleyin."
+    )
+    if rag_file is not None:
+        try:
+            file_content = rag_file.read().decode("utf-8")
+            from utils.vector_store import reindex_from_text, KNOWLEDGE_FILE
+            
+            with open(KNOWLEDGE_FILE, "w", encoding="utf-8") as f:
+                f.write(file_content)
+                
+            with st.spinner("Bilgi Bankası indeksleniyor..."):
+                reindex_from_text(file_content)
+            st.success("Bilgi Bankası başarıyla indekslendi!", icon="✅")
+        except Exception as e:
+            st.error(f"İndeksleme hatası: {e}")
+            
+    st.write("---")
+    st.markdown("""
+    **Hızlı Linkler:**
+    - [🌐 Web Siteniz](https://example.com)
+    - [📦 Ürün ve Hizmetler](https://example.com/urunler)
+    - [📞 İletişim](https://example.com/iletisim)
+    """)
+    
+    st.write("---")
+    if st.button("Sohbeti Sıfırla"):
+        st.session_state.messages = [{"role": "system", "content": st.session_state.custom_system_prompt}]
+        st.session_state.user_text = ""
+        st.rerun()
+
 # ---- Ana Arayüz ----
-st.title("Siliconmade AI Sales Assistant")
-st.caption("Geleceğin yazılımcıları için akıllı rehber.")
+st.title("Enterprise AI Sales Assistant")
+st.caption("Müşterileriniz ve ziyaretçileriniz için anında, akıllı ve sonuç odaklı destek.")
 
 # Chat history container
 chat_placeholder = st.container()
@@ -218,7 +273,7 @@ if send_btn or audio_bytes:
         
         try:
             with st.spinner("AI Yanıt veriyor..."):
-                reply = run_chatbot(MODEL_TYPE, st.session_state.messages, image_b64=image_b64)
+                reply = run_chatbot(st.session_state.selected_model, st.session_state.messages, image_b64=image_b64)
             
             if reply:
                 st.session_state.messages.append({"role": "assistant", "content": reply})

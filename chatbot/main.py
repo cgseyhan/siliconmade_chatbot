@@ -40,7 +40,7 @@ def background_logs(user_input: str, response: str, model_name: str, sentiment: 
                     name=lead_data.get("name"),
                     email=lead_data.get("email"),
                     phone=lead_data.get("phone"),
-                    course=lead_data.get("course"),
+                    product=lead_data.get("product") or lead_data.get("course"),
                     notes=f"Model: {model_name}"
                 )
         except Exception as e:

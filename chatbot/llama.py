@@ -4,14 +4,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    default_headers={
-        "HTTP-Referer": os.getenv("OPENROUTER_SITE_URL", "http://localhost"),
-        "X-Title": os.getenv("OPENROUTER_APP_NAME", "Chatbot"),
-    },
-)
+client = None
+
+def get_openrouter_client():
+    global client
+    if client is None:
+        api_key = os.getenv("OPENROUTER_API_KEY") or "dummy"
+        client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=api_key,
+            default_headers={
+                "HTTP-Referer": os.getenv("OPENROUTER_SITE_URL", "http://localhost"),
+                "X-Title": os.getenv("OPENROUTER_APP_NAME", "Chatbot"),
+            },
+        )
+    return client
 
 def _resolve_llama_model(name: str | None) -> str:
     # explicit -> env -> fallback
@@ -28,7 +35,7 @@ class LlamaChatbot:
         """
         OpenRouter üzerinden mesaj listesini LLaMA modeline gönderir.
         """
-        resp = client.chat.completions.create(
+        resp = get_openrouter_client().chat.completions.create(
             model=self.model_name,
             messages=messages,
         )

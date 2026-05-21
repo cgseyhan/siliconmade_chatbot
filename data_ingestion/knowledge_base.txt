@@ -1,30 +1,27 @@
-SILICONMADE ACADEMY BİLGİ BANKASI
+MARKA BİLGİ BANKASI ŞABLONU (ÖRNEK TEKNOLOJİ A.Ş.)
 
 Hakkımızda:
-Siliconmade Academy, Türkiye'nin önde gelen yazılım ve teknoloji eğitim merkezlerinden biridir. Amacımız, sektöre kalifiye yazılımcılar yetiştirmek ve öğrencileri iş hayatına hazırlamaktır.
+Örnek Teknoloji A.Ş., Türkiye'nin önde gelen yenilikçi teknoloji ve kurumsal yazılım çözümleri üreticilerinden biridir. Amacımız, müşterilerimize modern dijital dönüşüm süreçlerinde rehberlik etmek ve en yüksek kalitede mühendislik hizmetleri sunmaktır.
 
-Eğitim Programları:
-1. Full Stack Java Geliştirici:
-   - Süre: 6 Ay
-   - İçerik: Java, Spring Boot, MySQL, React, Docker.
-   - Kimler İçin: Yazılıma sıfırdan başlamak isteyenler veya Java uzmanı olmak isteyenler.
+Ürün ve Hizmetlerimiz:
+1. Akıllı ERP ve CRM Çözümleri:
+   - Açıklama: Şirketinizin tüm kaynaklarını tek bir platformdan yönetmenizi sağlayan bulut tabanlı yazılım çözümü.
+   - Kimler İçin: Operasyonel verimliliğini artırmak isteyen KOBİ'ler ve kurumsal şirketler.
 
-2. Veri Bilimi ve Yapay Zeka:
-   - Süre: 5 Ay
-   - İçerik: Python, Pandas, Scikit-learn, TensorFlow, Derin Öğrenme.
-   - Kimler İçin: Veri analizi ve yapay zeka alanında kariyer yapmak isteyenler.
+2. Yapay Zeka Entegrasyon Hizmetleri:
+   - Açıklama: İş süreçlerinizi optimize eden, anlık veri analizi ve tahmine dayalı modelleme sunan özel AI çözümleri.
+   - Kimler İçin: Teknolojik altyapısını yapay zeka ile güçlendirmek isteyen işletmeler.
 
-3. Siber Güvenlik Uzmanlığı:
-   - Süre: 4 Ay
-   - İçerik: Ağ güvenliği, Sızma testleri (Pentest), Kali Linux, SOC takibi.
+3. Bulut Altyapı ve Güvenlik Hizmetleri:
+   - Açıklama: Verilerinizi güvende tutan, yüksek erişilebilirlikli siber güvenlik ve veri saklama altyapıları.
 
-Staj ve İş İmkânları:
-Eğitimi başarıyla tamamlayan öğrencilere partner firmalarımızda staj imkânı sağlanmaktadır. Başarılı mezunlarımızın %90'ı ilk 3 ay içinde işe yerleşmektedir.
+Çözüm Ortaklığı ve Destek:
+Ürünlerimizi tercih eden tüm iş ortaklarımıza 7/24 teknik destek ve entegrasyon süreci boyunca kesintisiz danışmanlık hizmeti sunmaktır.
 
 Lokasyon:
-İstanbul ve online eğitim seçenekleri mevcuttur.
+Merkez ofisimiz İstanbul'da olup, tüm dünyadaki iş ortaklarımıza online ve yerinde hizmet sunmaktayız.
 
 İletişim:
-- Web: www.siliconmadeacademy.com
-- Telefon: +90 (212) 000 00 00
-- E-posta: info@siliconmadeacademy.com
+- Web: www.example.com
+- Telefon: +90 (000) 000 00 00
+- E-posta: info@example.com

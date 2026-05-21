@@ -12,8 +12,14 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     print(f"WARNING: OPENAI_API_KEY bulunamadı! Aranan yol: {env_path}")
 
-# Ortam değişkeninden OpenAI API anahtarını alır ve OpenAI istemcisini başlatır
-client = OpenAI(api_key=api_key)
+client = None
+
+def get_openai_client():
+    global client
+    if client is None:
+        key = os.getenv("OPENAI_API_KEY") or "dummy"
+        client = OpenAI(api_key=key)
+    return client
 
 def chat_with_openai(messages: list, image_b64: str = None) -> dict:
     """
@@ -37,7 +43,7 @@ def chat_with_openai(messages: list, image_b64: str = None) -> dict:
     if messages[0]["role"] == "system":
         messages[0]["content"] += system_instruction
 
-    response = client.chat.completions.create(
+    response = get_openai_client().chat.completions.create(
         model="gpt-4o",
         messages=messages,
         response_format={ "type": "json_object" }

@@ -33,8 +33,16 @@ def init_db():                             # Veritabanı ve tabloları oluşturm
                 name TEXT,
                 email TEXT,
                 phone TEXT,
-                course_interest TEXT,
+                product_interest TEXT,
                 notes TEXT
+            )
+        """)
+
+        # Ayarlar (Settings) tablosu
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
             )
         """)
         conn.commit()
@@ -42,6 +50,31 @@ def init_db():                             # Veritabanı ve tabloları oluşturm
         print(f"DEBUG: SQLite Veritabanı kontrol edildi ({DB_PATH}).")
     except Exception as e:
         print(f"ERROR: Veritabanı oluşturulamadı → {e}")
+
+def get_setting(key: str, default: str = "") -> str:
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM settings WHERE key=?", (key,))
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return row[0]
+        return default
+    except Exception as e:
+        print(f"ERROR: get_setting hatası → {e}")
+        return default
+
+def set_setting(key: str, value: str):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
+        conn.commit()
+        conn.close()
+        print(f"DEBUG: Ayar güncellendi → {key}")
+    except Exception as e:
+        print(f"ERROR: set_setting hatası → {e}")
 
 def get_connection():                      # SQLite bağlantısı oluşturmak için fonksiyon
     return sqlite3.connect(DB_PATH)
@@ -64,16 +97,16 @@ def log_interaction(user_input: str, response: str, model: str, sentiment: str =
     except Exception as e:
         print(f"ERROR: [FAIL] SQLite log hatası → {e}")
 
-def save_lead(name=None, email=None, phone=None, course=None, notes=None):
+def save_lead(name=None, email=None, phone=None, product=None, notes=None):
     """Aday müşteri bilgilerini SQLite veritabanına kaydeder."""
     try:
         conn = get_connection()
         cursor = conn.cursor()
         query = """
-            INSERT INTO leads (timestamp, name, email, phone, course_interest, notes)
+            INSERT INTO leads (timestamp, name, email, phone, product_interest, notes)
             VALUES (?, ?, ?, ?, ?, ?)
         """
-        values = (datetime.now(), name, email, phone, course, notes)
+        values = (datetime.now(), name, email, phone, product, notes)
         cursor.execute(query, values)
         conn.commit()
         conn.close()

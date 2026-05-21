@@ -13,8 +13,15 @@ load_dotenv(env_path)
 DB_DIR = os.path.join(os.path.dirname(current_dir), "chroma_db")
 KNOWLEDGE_FILE = os.path.join(os.path.dirname(current_dir), "data_ingestion", "knowledge_base.txt")
 
-# Embedding modelini başlat
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+# Embedding modelini lazy başlatmak için fonksiyon
+_embeddings = None
+
+def get_embeddings():
+    global _embeddings
+    if _embeddings is None:
+        key = os.getenv("OPENAI_API_KEY") or "dummy"
+        _embeddings = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=key)
+    return _embeddings
 
 def initialize_vector_db():
     """
@@ -34,10 +41,32 @@ def initialize_vector_db():
     # ChromaDB oluştur
     vector_db = Chroma.from_documents(
         documents=docs,
-        embedding=embeddings,
+        embedding=get_embeddings(),
         persist_directory=DB_DIR
     )
     print(f"DEBUG: Vektör veritabanı başarıyla oluşturuldu/güncellendi. ({len(docs)} parça)")
+    return vector_db
+
+def reindex_from_text(text: str):
+    """
+    Belirli bir metni parçalar ve vektör veritabanını sıfırlayıp yeniden oluşturur.
+    """
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    docs = text_splitter.create_documents([text])
+
+    import shutil
+    if os.path.exists(DB_DIR):
+        try:
+            shutil.rmtree(DB_DIR)
+        except Exception as e:
+            print(f"DEBUG: Eski DB silinemedi: {e}")
+
+    vector_db = Chroma.from_documents(
+        documents=docs,
+        embedding=get_embeddings(),
+        persist_directory=DB_DIR
+    )
+    print(f"DEBUG: Vektör veritabanı dinamik metin ile yeniden oluşturuldu. ({len(docs)} parça)")
     return vector_db
 
 def get_vector_db():
@@ -47,7 +76,7 @@ def get_vector_db():
     if not os.path.exists(DB_DIR):
         return initialize_vector_db()
     
-    return Chroma(persist_directory=DB_DIR, embedding_function=embeddings)
+    return Chroma(persist_directory=DB_DIR, embedding_function=get_embeddings())
 
 def query_vector_db(query: str, k: int = 3):
     """

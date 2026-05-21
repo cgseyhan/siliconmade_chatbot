@@ -1,6 +1,6 @@
-# 🚀 Siliconmade AI Sales Assistant (Next-Gen RAG & Analytics)
+# 🚀 Enterprise Brand AI Sales Assistant (Next-Gen RAG & Analytics)
 
-Siliconmade Academy için geliştirilmiş, potansiyel öğrencilere rehberlik eden, anlamsal arama (RAG) yeteneğine sahip, duygu ve niyet analizi yapabilen profesyonel bir **Yapay Zeka Satış Asistanı** ekosistemidir.
+Herhangi bir marka veya işletme için kolayca özelleştirilebilen; anlamsal arama (RAG) yeteneğine sahip, duygu ve niyet analizi yapabilen, dinamik arayüz üzerinden özelleştirilebilir profesyonel bir **Yapay Zeka Satış Asistanı** ekosistemidir.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Modern%20API-009688.svg)
@@ -12,8 +12,11 @@ Siliconmade Academy için geliştirilmiş, potansiyel öğrencilere rehberlik ed
 
 ## 🌟 Öne Çıkan Özellikler
 
-### 🧠 Anlamsal Bellek (RAG - Retrieval Augmented Generation)
-Bot, sadece önceden tanımlanmış metinlere bakmaz. **ChromaDB** vektör veritabanını kullanarak Siliconmade bilgi bankasında anlamsal arama yapar ve en doğru bilgiyi saniyeler içinde bulur.
+### 🧠 Markaya Özel Anlamsal Bellek (RAG - Retrieval Augmented Generation)
+Arayüz üzerinden yükleyeceğiniz her türlü bilgi bankası (.txt, .md) dosyasını otomatik olarak **ChromaDB** vektör veritabanına indeksler ve asistanınızın anında marka uzmanına dönüşmesini sağlar.
+
+### 📝 Dinamik Sistem Promptu Özelleştirme
+Asistanın karakterini, dil tonunu, kırmızı çizgilerini ve satış stratejilerini kod yazmadan doğrudan arayüz üzerindeki **Marka Özelleştirme** panelinden değiştirebilirsiniz.
 
 ### 📊 Akıllı Analitik & Dashboard
 *   **Duygu Analizi:** Kullanıcının mutlu mu, kızgın mı yoksa nötr mü olduğunu anlık olarak tespit eder.
@@ -21,7 +24,7 @@ Bot, sadece önceden tanımlanmış metinlere bakmaz. **ChromaDB** vektör verit
 *   **Yönetim Paneli:** Plotly tabanlı grafiklerle müşteri segmentasyonu ve trafik analizi sunar.
 
 ### ⚡ Çok Kanallı Mimari (FastAPI)
-Sadece bir web arayüzü değil, aynı zamanda bir API servisidir. Bu sayede botu mobil uygulamalara, WordPress sitelerine veya kurumsal sistemlere kolayca entegre edebilirsiniz.
+Sadece bir web arayüzü değil, aynı zamanda bir API servisidir. Bu sayede asistanı mobil uygulamalara, WordPress sitelerine veya kurumsal sistemlere kolayca entegre edebilirsiniz.
 
 ### 🎨 Premium UI/UX
 *   **Glassmorphism Tasarım:** Modern, yarı saydam ve estetik kullanıcı arayüzü.
@@ -33,7 +36,7 @@ Sadece bir web arayüzü değil, aynı zamanda bir API servisidir. Bu sayede bot
 ## 🏗️ Proje Yapısı
 
 ```text
-📁 siliconmade_chatbot
+📁 chatbotforbrands
 ├── 📁 api              # FastAPI Backend (Santral)
 ├── 📁 chatbot          # Ana Mantık (OpenAI & LLaMA Entegrasyonları)
 ├── 📁 chroma_db        # Vektör Veritabanı (Hafıza)
@@ -50,8 +53,8 @@ Sadece bir web arayüzü değil, aynı zamanda bir API servisidir. Bu sayede bot
 
 ### 1. Hazırlık
 ```bash
-git clone https://github.com/cgseyhan/siliconmade_chatbot.git
-cd siliconmade_chatbot
+git clone https://github.com/cgseyhan/chatbotforbrands.git
+cd chatbotforbrands
 python -m venv .venv
 source .venv/bin/activate # Windows için: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -74,12 +77,12 @@ Proje üç ana katmandan oluşur:
 ---
 
 ## 🛡️ Güvenlik ve Guardrails
-Botumuz, rakip kurumlar hakkında konuşmamak, resmi fiyat listesi dışına çıkmamak ve tıbbi/etik dışı konularda yorum yapmamak üzere özel olarak eğitilmiştir.
+Asistanınız; rakipler hakkında konuşmamak, resmi fiyat politikasının dışına çıkmamak, uydurma bilgi vermemek ve etik dışı konularda yorum yapmamak üzere korumalı kurallar barındırır.
 
 ---
 
 ## 📝 Geliştirici Notu
-Bu proje, modern yapay zeka tekniklerini (RAG, Sentiment Analysis, Agentic Flow) kurumsal bir satış senaryosuna entegre etmek amacıyla Siliconmade Academy staj süreci kapsamında geliştirilmiştir.
+Bu proje, modern yapay zeka tekniklerini (RAG, Sentiment Analysis, Agentic Flow) kurumsal bir satış ve müşteri ilişkileri senaryosuna entegre etmek amacıyla geliştirilmiş profesyonel bir altyapıdır.
 
 ---
 
